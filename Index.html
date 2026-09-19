@@ -65,6 +65,7 @@
     <div class="topbar-spacer"></div>
     <button class="icon-btn" title="Help"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 015.8 1c0 2-3 2-3 4"/><path d="M12 17h.01"/></svg></button>
     <button class="icon-btn" title="Notifications" id="notifBtn"><span class="dot"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg></button>
+    <button class="icon-btn" title="Sign out" id="logoutBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button>
     <div class="role-switcher">
       <div class="avatar" id="roleAvatar">RO</div>
       <select id="roleSelect">
@@ -447,12 +448,7 @@
           <div class="card-title-row"><h3>Underground cross-section — Lakeview Residency corridor</h3></div>
           <div id="utilitySvgHost" style="display:flex;justify-content:center"></div>
           <div class="divider"></div>
-          <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--text-secondary)">
-            <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" checked class="util-layer" data-layer="water">Water (-3.8m)</label>
-            <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" checked class="util-layer" data-layer="sewer">Sewer (-2.9m)</label>
-            <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" checked class="util-layer" data-layer="fibre">Fibre (-2.6m)</label>
-            <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" class="util-layer" data-layer="gas">Gas (-3.2m)</label>
-          </div>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--text-secondary)" id="utilityLayerToggles"></div>
         </div>
         <div class="stack">
           <div class="card">
@@ -464,10 +460,7 @@
           </div>
           <div class="card">
             <div class="card-title-row"><h3>Asset registry</h3></div>
-            <div class="detail-row"><span class="k">Water line</span><span class="v">City Water Board · Fair</span></div>
-            <div class="detail-row"><span class="k">Sewer line</span><span class="v">Municipal PWD · Fair</span></div>
-            <div class="detail-row"><span class="k">Fibre conduit</span><span class="v">BSNL Infra · Good</span></div>
-            <div class="detail-row"><span class="k">Safety buffer</span><span class="v">1.5 m radial</span></div>
+            <div id="utilityAssetRegistry"></div>
           </div>
         </div>
       </div>
@@ -666,7 +659,7 @@
     <section class="view" id="view-users">
       <div class="view-header">
         <div><h1>User &amp; Role Management</h1><div class="sub">Accounts and permission scope across the four role categories</div></div>
-        <div class="view-actions"><button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add User</button></div>
+        <div class="view-actions"><button class="btn btn-primary" id="addUserBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Add User</button></div>
       </div>
       <div class="card" style="margin-bottom:16px">
         <div class="card-title-row"><h3>Permission matrix</h3></div>
@@ -754,6 +747,10 @@
   <div class="drawer-panel" id="infraDrawerPanel"></div>
 </div>
 
+<!-- ============================= AUTH OVERLAY ============================= -->
+<div class="auth-overlay" id="authOverlay"></div>
+
+<script src="api.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

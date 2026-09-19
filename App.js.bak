@@ -30,17 +30,120 @@ const STATE = {
   approvalView: 'kanban',
 };
 
-var LEVELS = []; /* hydrated by api.js */
+const LEVELS = [
+  { id: 'terrace', label: 'Terrace', tag: 'Terrace', h: 20, type: 'Common area', below: false, top: '#c4ced6', left: '#a9b6c0', right: '#95a4b1' },
+  { id: 'floor5', label: 'Floor 5', tag: 'L5', h: 34, type: 'Office / shared amenity', below: false, top: '#9fc3d8', left: '#7fa8c9', right: '#6c93b3' },
+  { id: 'floor4', label: 'Floor 4', tag: 'L4', h: 34, type: 'Apartments (incl. Unit 402)', below: false, top: '#9fc3d8', left: '#7fa8c9', right: '#6c93b3', hasConflict: true },
+  { id: 'floor3', label: 'Floor 3', tag: 'L3', h: 34, type: 'Apartments', below: false, top: '#9fc3d8', left: '#7fa8c9', right: '#6c93b3' },
+  { id: 'floor2', label: 'Floor 2', tag: 'L2', h: 34, type: 'Apartments', below: false, top: '#9fc3d8', left: '#7fa8c9', right: '#6c93b3' },
+  { id: 'floor1', label: 'Floor 1', tag: 'L1', h: 34, type: 'Apartments', below: false, top: '#9fc3d8', left: '#7fa8c9', right: '#6c93b3' },
+  { id: 'ground', label: 'Ground Floor', tag: 'G', h: 38, type: 'Retail & lobby (common)', below: false, top: '#c4ced6', left: '#a9b6c0', right: '#95a4b1' },
+  { id: 'b1', label: 'Basement B1', tag: 'B1', h: 34, type: 'Parking (common)', below: true, top: '#b8c2ca', left: '#9dadb6', right: '#8a9ba5' },
+  { id: 'b2', label: 'Basement B2', tag: 'B2', h: 34, type: 'Utility / service area', below: true, top: '#a3adb5', left: '#8b969e', right: '#79858e' },
+];
 
-var UNIT_402 = {}; /* hydrated by api.js */
+const UNIT_402 = {
+  name: 'Apartment 402',
+  id3d: '1450A9B7C23456-BLD-01-LVL-04-UNIT-402',
+  parent: '1450A9B7C23456',
+  type: 'Apartment',
+  building: 'Lakeview Residency, Bldg 01',
+  floor: 'Floor 4',
+  elevation: '12.0 m – 15.1 m',
+  area: '92.4 m²',
+  volume: '286.4 m³',
+  boundary: 'Regularised, matches floor plan',
+  owner: 'A. Sharma (masked)',
+  ownerFull: 'Anil Sharma',
+  source: 'LiDAR + floor plan',
+  confidence: 96,
+  lastVerified: '18 Aug 2026',
+  conflict: true,
+};
 
-var LEVEL_DETAIL = {}; /* hydrated by api.js */
+const LEVEL_DETAIL = {
+  terrace: { id3d: '1450A9B7C23456-BLD-01-LVL-T', type: 'Common area', elevation: '19.0 m – 19.6 m', area: '210 m²', volume: '126 m³', owner: 'Common — RWA managed', source: 'Drone orthophoto', confidence: 88, conflict: false, airspace: true },
+  floor5: { id3d: '1450A9B7C23456-BLD-01-LVL-05', type: 'Office / shared amenity', elevation: '15.4 m – 18.6 m', area: '420 m²', volume: '1344 m³', owner: 'Multiple (masked)', source: 'LiDAR', confidence: 91, conflict: false, airspace: true },
+  floor4: Object.assign({ airspace: false }, UNIT_402),
+  floor3: { id3d: '1450A9B7C23456-BLD-01-LVL-03', type: 'Apartments', elevation: '8.6 m – 11.8 m', area: '412 m²', volume: '1318 m³', owner: 'Multiple (masked)', source: 'LiDAR + floor plan', confidence: 94, conflict: false, airspace: false },
+  floor2: { id3d: '1450A9B7C23456-BLD-01-LVL-02', type: 'Apartments', elevation: '5.4 m – 8.4 m', area: '412 m²', volume: '1318 m³', owner: 'Multiple (masked)', source: 'LiDAR + floor plan', confidence: 95, conflict: false, airspace: false },
+  floor1: { id3d: '1450A9B7C23456-BLD-01-LVL-01', type: 'Apartments', elevation: '2.2 m – 5.2 m', area: '412 m²', volume: '1318 m³', owner: 'Multiple (masked)', source: 'LiDAR + floor plan', confidence: 95, conflict: false, airspace: false },
+  ground: { id3d: '1450A9B7C23456-BLD-01-LVL-GF', type: 'Retail & lobby', elevation: '0.0 m – 2.0 m', area: '480 m²', volume: '960 m³', owner: 'Common + 3 retail units', source: 'Floor plan + survey', confidence: 90, conflict: false, airspace: false },
+  b1: { id3d: '1450A9B7C23456-BLD-01-LVL-B1', type: 'Parking (common)', elevation: '-3.0 m – 0.0 m', area: '520 m²', volume: '1560 m³', owner: 'Common — RWA managed', source: 'GNSS + manual entry', confidence: 82, conflict: false, airspace: false },
+  b2: { id3d: '1450A9B7C23456-BLD-01-LVL-B2', type: 'Utility / service area', elevation: '-6.2 m – -3.0 m', area: '260 m²', volume: '832 m³', owner: 'Municipal utility easement', source: 'GNSS + manual entry', confidence: 71, conflict: true, airspace: false },
+};
 
-var BUILDINGS_EXTRA = {}; /* hydrated by api.js */
+const BUILDINGS_EXTRA = {
+  dbtrade: {
+    meta: { name: 'DB Trade Centre', parent: '1450B2C88F1122', floors: 6, basements: 1, address: 'MP Nagar Zone I, Bhopal',
+      ward: 'Ward 12', zone: 'MP Nagar Zone I', surveyNo: 'SVY-2026-0398', lat: 23.2310, lng: 77.4340,
+      landUse: 'Commercial', ownershipType: 'Multiple corporate leaseholders', boundaryDims: '44 m × 30 m (approx.)',
+      status: 'Operational', validationStatus: 'Review required (Floor 2)', surveyAccuracy: '±0.08 m (GNSS)',
+      gnss: 'Static GNSS, 8 control points', lidarAvailability: 'Yes — Jul 2026 pass',
+      infra: { roads: 'Frontage on metro corridor road', metro: 'Direct frontage — piers proposed within 4.5 m', water: 'Connected', gas: 'Piped gas — commercial line', electricity: 'Connected — high-tension feed', underground: 'Metro pier clearance conflict flagged' } },
+    levels: [
+      { id: 'roof', label: 'Roof Amenity', tag: 'Roof', h: 18, type: 'Common area', below: false, top: '#c4ced6', left: '#a9b6c0', right: '#95a4b1' },
+      { id: 'f6', label: 'Floor 6', tag: 'L6', h: 28, type: 'Corporate office', below: false, top: '#a9c8dd', left: '#87abc9', right: '#7196b4' },
+      { id: 'f5', label: 'Floor 5', tag: 'L5', h: 28, type: 'Corporate office', below: false, top: '#a9c8dd', left: '#87abc9', right: '#7196b4' },
+      { id: 'f4', label: 'Floor 4', tag: 'L4', h: 28, type: 'Corporate office', below: false, top: '#a9c8dd', left: '#87abc9', right: '#7196b4' },
+      { id: 'f3', label: 'Floor 3', tag: 'L3', h: 28, type: 'Corporate office', below: false, top: '#a9c8dd', left: '#87abc9', right: '#7196b4' },
+      { id: 'f2', label: 'Floor 2', tag: 'L2', h: 28, type: 'Corporate office', below: false, top: '#a9c8dd', left: '#87abc9', right: '#7196b4', hasConflict: true },
+      { id: 'gf', label: 'Ground Floor', tag: 'G', h: 34, type: 'Retail & lobby', below: false, top: '#c4ced6', left: '#a9b6c0', right: '#95a4b1' },
+      { id: 'b1', label: 'Basement B1', tag: 'B1', h: 30, type: 'Parking (common)', below: true, top: '#b8c2ca', left: '#9dadb6', right: '#8a9ba5' },
+    ],
+    detail: {
+      roof: { id3d: '1450B2C88F1122-BLD-01-LVL-ROOF', type: 'Common area', elevation: '21.0 m – 21.6 m', area: '180 m²', volume: '108 m³', owner: 'Common — facility managed', source: 'Drone orthophoto', confidence: 85, conflict: false, airspace: true },
+      f6: { id3d: '1450B2C88F1122-BLD-01-LVL-06', type: 'Corporate office', elevation: '18.0 m – 20.8 m', area: '560 m²', volume: '1568 m³', owner: 'Multiple (masked)', source: 'LiDAR', confidence: 92, conflict: false, airspace: true },
+      f5: { id3d: '1450B2C88F1122-BLD-01-LVL-05', type: 'Corporate office', elevation: '15.2 m – 18.0 m', area: '560 m²', volume: '1568 m³', owner: 'Multiple (masked)', source: 'LiDAR', confidence: 93, conflict: false, airspace: false },
+      f4: { id3d: '1450B2C88F1122-BLD-01-LVL-04', type: 'Corporate office', elevation: '12.4 m – 15.2 m', area: '560 m²', volume: '1568 m³', owner: 'Multiple (masked)', source: 'LiDAR', confidence: 93, conflict: false, airspace: false },
+      f3: { id3d: '1450B2C88F1122-BLD-01-LVL-03', type: 'Corporate office', elevation: '9.6 m – 12.4 m', area: '560 m²', volume: '1568 m³', owner: 'Multiple (masked)', source: 'LiDAR', confidence: 90, conflict: false, airspace: false },
+      f2: { id3d: '1450B2C88F1122-BLD-01-LVL-02', type: 'Corporate office', elevation: '6.8 m – 9.6 m', area: '560 m²', volume: '1568 m³', owner: 'Multiple (masked)', source: 'LiDAR + floor plan', confidence: 69, conflict: true, airspace: false },
+      gf: { id3d: '1450B2C88F1122-BLD-01-LVL-GF', type: 'Retail & lobby', elevation: '0.0 m – 3.2 m', area: '640 m²', volume: '2048 m³', owner: 'Common + 5 retail units', source: 'Floor plan + survey', confidence: 89, conflict: false, airspace: false },
+      b1: { id3d: '1450B2C88F1122-BLD-01-LVL-B1', type: 'Parking (common)', elevation: '-3.0 m – 0.0 m', area: '610 m²', volume: '1830 m³', owner: 'Common — facility managed', source: 'GNSS + manual entry', confidence: 80, conflict: false, airspace: false },
+    },
+  },
+  mpplaza: {
+    meta: { name: 'MP Nagar Zone II Plaza', parent: '1450C7A55D3390', floors: 4, basements: 1, address: 'MP Nagar Zone II, Bhopal',
+      ward: 'Ward 12', zone: 'MP Nagar Zone II', surveyNo: 'SVY-2026-0512', lat: 23.2288, lng: 77.4375,
+      landUse: 'Residential', ownershipType: 'Multiple private + common (RWA)', boundaryDims: '34 m × 28 m (approx.)',
+      status: 'Operational', validationStatus: 'Verified', surveyAccuracy: '±0.06 m (RTK-GNSS)',
+      gnss: 'RTK-GNSS, 9 control points', lidarAvailability: 'Yes — Jun 2026 pass',
+      infra: { roads: 'Set back from Main Road', metro: 'No direct frontage', water: 'Connected', gas: 'Not connected', electricity: 'Connected', underground: 'No utility conflicts recorded' } },
+    levels: [
+      { id: 'f4', label: 'Floor 4', tag: 'L4', h: 28, type: 'Apartments', below: false, top: '#9fc3d8', left: '#7fa8c9', right: '#6c93b3' },
+      { id: 'f3', label: 'Floor 3', tag: 'L3', h: 28, type: 'Apartments', below: false, top: '#9fc3d8', left: '#7fa8c9', right: '#6c93b3' },
+      { id: 'f2', label: 'Floor 2', tag: 'L2', h: 28, type: 'Apartments', below: false, top: '#9fc3d8', left: '#7fa8c9', right: '#6c93b3' },
+      { id: 'f1', label: 'Floor 1', tag: 'L1', h: 28, type: 'Apartments', below: false, top: '#9fc3d8', left: '#7fa8c9', right: '#6c93b3' },
+      { id: 'gf', label: 'Ground Floor', tag: 'G', h: 34, type: 'Retail & lobby', below: false, top: '#c4ced6', left: '#a9b6c0', right: '#95a4b1' },
+      { id: 'b1', label: 'Basement B1', tag: 'B1', h: 30, type: 'Parking (common)', below: true, top: '#b8c2ca', left: '#9dadb6', right: '#8a9ba5' },
+    ],
+    detail: {
+      f4: { id3d: '1450C7A55D3390-BLD-01-LVL-04', type: 'Apartments', elevation: '9.8 m – 12.6 m', area: '380 m²', volume: '1064 m³', owner: 'Multiple (masked)', source: 'LiDAR + floor plan', confidence: 94, conflict: false, airspace: false },
+      f3: { id3d: '1450C7A55D3390-BLD-01-LVL-03', type: 'Apartments', elevation: '7.0 m – 9.8 m', area: '380 m²', volume: '1064 m³', owner: 'Multiple (masked)', source: 'LiDAR + floor plan', confidence: 94, conflict: false, airspace: false },
+      f2: { id3d: '1450C7A55D3390-BLD-01-LVL-02', type: 'Apartments', elevation: '4.2 m – 7.0 m', area: '380 m²', volume: '1064 m³', owner: 'Multiple (masked)', source: 'LiDAR + floor plan', confidence: 95, conflict: false, airspace: false },
+      f1: { id3d: '1450C7A55D3390-BLD-01-LVL-01', type: 'Apartments', elevation: '1.4 m – 4.2 m', area: '380 m²', volume: '1064 m³', owner: 'Multiple (masked)', source: 'LiDAR + floor plan', confidence: 95, conflict: false, airspace: false },
+      gf: { id3d: '1450C7A55D3390-BLD-01-LVL-GF', type: 'Retail & lobby', elevation: '0.0 m – 1.4 m', area: '420 m²', volume: '588 m³', owner: 'Common + 2 retail units', source: 'Floor plan + survey', confidence: 88, conflict: false, airspace: false },
+      b1: { id3d: '1450C7A55D3390-BLD-01-LVL-B1', type: 'Parking (common)', elevation: '-2.6 m – 0.0 m', area: '400 m²', volume: '1040 m³', owner: 'Common — RWA managed', source: 'GNSS + manual entry', confidence: 84, conflict: false, airspace: false },
+    },
+  },
+};
 
-var LAKEVIEW_META = { infra: {} }; /* hydrated by api.js */
+const LAKEVIEW_META = {
+  name: 'Lakeview Residency', parent: '1450A9B7C23456', floors: 5, basements: 2, address: '14 Lakeview Avenue, MP Nagar',
+  ward: 'Ward 12', zone: 'MP Nagar Zone II', surveyNo: 'SVY-2026-0451', lat: 23.2296, lng: 77.4362,
+  landUse: 'Residential (mixed-use)', ownershipType: 'Multiple private + common (RWA)', boundaryDims: '38 m × 32 m (approx.)',
+  status: 'Occupied / operational', validationStatus: 'Verified', surveyAccuracy: '±0.05 m (RTK-GNSS)',
+  gnss: 'RTK-GNSS, 12 control points', lidarAvailability: 'Yes — Aug 2026 pass',
+  infra: { roads: 'Main Road frontage', metro: '210 m from proposed station', water: 'Connected — municipal supply', gas: 'Not connected (LPG cylinders)', electricity: 'Connected — 3-phase, MPPKVVCL', underground: 'Water, sewer, fibre corridor nearby' },
+};
 
-var INFRA_PROFILES = {}; /* hydrated by api.js */
+const INFRA_PROFILES = {
+  metro: { label: 'Metro Line', color: '#5b5f97' },
+  water: { label: 'Water Pipeline', color: '#2563a9' },
+  sewer: { label: 'Sewer Line', color: '#2e7d5b' },
+  gas: { label: 'Gas Pipeline', color: '#c8831a' },
+  fibre: { label: 'Fibre Duct', color: '#3f8f5b' },
+};
 
 STATE.proposedInfra = { type: 'metro', from: 'lakeview', to: 'dbtrade', depth: 18, analyzed: false, conflicts: [], route: null, inspecting: null };
 
@@ -50,24 +153,45 @@ function parseDepthRange(elevStr) {
   return [Math.min(...nums), Math.max(...nums)];
 }
 
-/* The 3D (X, Y, Z) conflict analysis runs on the backend against the stored
-   volumes and utility assets; this only records the result for rendering. */
-async function analyzeProposedInfra() {
+function analyzeProposedInfra() {
   const p = STATE.proposedInfra;
-  const res = await API.createProposal({
-    infra_type: p.type,
-    from_building: p.from,
-    to_building: p.to,
-    width_m: p.width || 3,
-    depth_m: p.depth,
+  const conflicts = [];
+  const routeBuildingIds = [p.from, p.to];
+
+  routeBuildingIds.forEach(bid => {
+    const b = LOCALITY.buildings.find(x => x.id === bid);
+    if (!b) return;
+    const levels = bid === 'lakeview' ? LEVELS : (BUILDINGS_EXTRA[bid] ? BUILDINGS_EXTRA[bid].levels : []);
+    const detail = bid === 'lakeview' ? LEVEL_DETAIL : (BUILDINGS_EXTRA[bid] ? BUILDINGS_EXTRA[bid].detail : {});
+    const meta = bid === 'lakeview' ? LAKEVIEW_META : (BUILDINGS_EXTRA[bid] ? BUILDINGS_EXTRA[bid].meta : { name: b.name, parent: '—' });
+    levels.filter(l => l.below).forEach(l => {
+      const d = detail[l.id];
+      if (!d) return;
+      const range = parseDepthRange(d.elevation);
+      if (range && p.depth >= range[0] - 1 && p.depth <= range[1] + 1) {
+        const contained = p.depth >= range[0] && p.depth <= range[1];
+        conflicts.push({
+          severity: contained ? 'critical' : 'medium',
+          building: meta.name, buildingId: bid, level: l.label, id3d: d.id3d,
+          explain: `Proposed ${INFRA_PROFILES[p.type].label.toLowerCase()} at ${p.depth} m depth ${contained ? 'passes directly through' : 'passes close to'} ${l.label} (${range[0]}–${range[1]} m below grade) at ${meta.name}.`,
+          rule: 'Rule UTL-03: no proposed infrastructure may pass through an existing basement or utility volume without clearance review.',
+        });
+      }
+    });
   });
-  p.id = res.id;
-  p.route = res.route;
-  p.conflicts = res.conflicts.map(c => ({
-    severity: c.severity, building: c.building, buildingId: c.buildingId,
-    level: c.level, id3d: c.id3d, explain: c.explain, rule: c.rule,
-    recommended: c.recommended,
-  }));
+
+  if (p.type === 'metro' && routeBuildingIds.includes('dbtrade') && !conflicts.some(c => c.buildingId === 'dbtrade')) {
+    conflicts.push({
+      severity: 'critical', building: 'DB Trade Centre', buildingId: 'dbtrade', level: 'Parcel boundary / piers', id3d: BUILDINGS_EXTRA.dbtrade.meta.parent,
+      explain: `Proposed metro alignment piers fall within 4.5 m of DB Trade Centre's registered parcel boundary at ${p.depth} m depth — coordination required with BMRC.`,
+      rule: 'Rule GEO-02: infrastructure clearance must not encroach within the registered parcel boundary without a coordination agreement.',
+    });
+  }
+
+  const fromB = LOCALITY.buildings.find(b => b.id === p.from);
+  const toB = LOCALITY.buildings.find(b => b.id === p.to);
+  p.route = fromB && toB ? { x1: fromB.x + fromB.w / 2, y1: fromB.y + fromB.h / 2, x2: toB.x + toB.w / 2, y2: toB.y + toB.h / 2 } : null;
+  p.conflicts = conflicts;
   p.analyzed = true;
   p.inspecting = null;
 }
@@ -87,18 +211,104 @@ function getBuildingMeta() {
 
 /* ---- MP Nagar locality map data (fictional demo layout) ---- */
 
-var LOCALITY = { buildings: [], genericBuildings: [], metro: { stations: [] }, rail: {}, parks: [] }; /* hydrated by api.js */
-var CONFLICTS = []; /* hydrated by api.js */
+const LOCALITY = {
+  buildings: [
+    { id: 'lakeview', name: 'Lakeview Residency', use: 'residential', x: 100, y: 260, w: 90, h: 72, conflict: true },
+    { id: 'dbtrade', name: 'DB Trade Centre', use: 'commercial', x: 300, y: 110, w: 120, h: 66, conflict: true },
+    { id: 'mpplaza', name: 'MP Nagar Zone II Plaza', use: 'mixed', x: 470, y: 260, w: 100, h: 70, conflict: false },
+  ],
+  genericBuildings: [
+    { name: 'Block C (undigitized)', x: 220, y: 300, w: 55, h: 46 },
+    { name: 'Block D (undigitized)', x: 410, y: 130, w: 46, h: 40 },
+    { name: 'Block E (undigitized)', x: 130, y: 150, w: 50, h: 40 },
+    { name: 'Block F (undigitized)', x: 560, y: 340, w: 60, h: 48 },
+  ],
+  metro: {
+    path: 'M 20 200 C 180 170, 380 230, 640 190',
+    stations: [ { x: 195, y: 182, name: 'MP Nagar Metro Station (Under Construction)' }, { x: 470, y: 205, name: 'Zone II Interchange (Planned)' } ],
+    status: 'Under construction — elevated corridor, Phase 2',
+  },
+  rail: { path: 'M 0 380 L 700 340', label: 'Rani Kamlapati (Habibganj) railway approach — demo alignment' },
+  parks: [
+    { name: 'MP Nagar Central Park (Demo)', x: 250, y: 330, w: 70, h: 50 },
+    { name: 'Shivaji Nagar Green Corridor (Demo)', x: 40, y: 60, w: 90, h: 34 },
+  ],
+};
+const CONFLICTS = [
+  { sev: 'critical', type: 'Unit overlapping fire-escape / common area', prop: 'Apartment 402', bldg: 'Bldg 01 / L4', vol: '14.8 m³', status: 'Officer Review Required', officer: 'R. Mehta',
+    explain: 'Apartment 402 overlaps 14.8 m³ with the approved fire-escape volume on Level 4.', rule: 'Rule GEO-07: private volumes must not intersect designated egress paths.' },
+  { sev: 'critical', type: 'Basement intersecting utility buffer', prop: 'Basement B2 extension', bldg: 'Bldg 01 / B2', vol: '9.2 m³', status: 'Under Investigation', officer: 'S. Verma',
+    explain: 'The proposed Basement B2 extension intersects 9.2 m³ with the sewer-line maintenance buffer.', rule: 'Rule UTL-03: no private construction within utility safety buffer.' },
+  { sev: 'high', type: 'Duplicate 3D ULPIN', prop: 'Shop 3, Ground Floor', bldg: 'Bldg 01 / GF', vol: '—', status: 'Pending Review', officer: 'Unassigned',
+    explain: 'Two submitted records reference the same generated 3D ULPIN for Shop 3.', rule: 'Rule ID-01: 3D ULPIN must be unique per volume.' },
+  { sev: 'medium', type: 'Unit extending outside parent parcel', prop: 'Balcony extension, Unit 301', bldg: 'Bldg 01 / L3', vol: '2.1 m³', status: 'Pending Review', officer: 'N. Iqbal',
+    explain: 'A balcony extension for Unit 301 extends 2.1 m³ beyond the registered parent parcel boundary.', rule: 'Rule GEO-02: child volumes must be fully contained within the parent parcel.' },
+  { sev: 'medium', type: 'Invalid elevation range', prop: 'Utility Volume SEG-003', bldg: 'Water corridor', vol: '—', status: 'Pending Review', officer: 'Unassigned',
+    explain: 'Submitted elevation range for utility segment SEG-003 does not match GNSS survey points.', rule: 'Rule GEO-11: elevation range must be consistent with source survey.' },
+  { sev: 'low', type: 'Minor setback deviation', prop: 'Shop 1, Ground Floor', bldg: 'Bldg 01 / GF', vol: '0.3 m³', status: 'Pending Review', officer: 'Unassigned',
+    explain: 'Shop 1\'s frontage deviates 0.3 m into the mandatory street setback — within tolerance but flagged for record.', rule: 'Rule GEO-14: frontage should respect the municipal setback line.' },
+  { sev: 'clear', type: 'Missing volume / gap between units', prop: 'Units 201–202', bldg: 'Bldg 01 / L2', vol: '0 m³', status: 'Resolved', officer: 'R. Mehta',
+    explain: 'A 0.4 m gap between Units 201 and 202 was corrected after re-survey.', rule: 'Rule GEO-05: adjacent private volumes should not leave unassigned gaps.' },
+  { sev: 'clear', type: 'Expired survey source', prop: 'Shop 1, Ground Floor', bldg: 'Bldg 01 / GF', vol: '—', status: 'Resolved', officer: 'S. Verma',
+    explain: 'Source survey for Shop 1 exceeded the 24-month validity window and was refreshed.', rule: 'Rule SRC-02: survey source must be refreshed every 24 months.' },
+];
 
-var APPROVAL_COLUMNS = []; /* hydrated by api.js */
+const APPROVAL_COLUMNS = [
+  { id: 'submitted', label: 'Submitted by Surveyor', cases: [
+    { id: '1450A9B7C23456-BLD-01-LVL-05', title: 'Floor 5 office subdivision', conf: 91, sla: 'Due in 3 days', conflict: false },
+    { id: '1450A9B7C23456-BLD-01-LVL-GF-SHOP3', title: 'Shop 3, Ground Floor', conf: 74, sla: 'Due in 1 day', conflict: true },
+  ]},
+  { id: 'ai_review', label: 'AI Review Complete', cases: [
+    { id: '1450A9B7C23456-BLD-01-LVL-B2', title: 'Basement B2 utility area', conf: 71, sla: 'Due in 2 days', conflict: true },
+  ]},
+  { id: 'needs_correction', label: 'Needs Correction', cases: [
+    { id: '1450A9B7C23456-BLD-01-LVL-03-UNIT-301', title: 'Unit 301 balcony extension', conf: 68, sla: 'Overdue', conflict: true },
+  ]},
+  { id: 'officer_review', label: 'Under Officer Review', cases: [
+    { id: '1450A9B7C23456-BLD-01-LVL-04-UNIT-402', title: 'Apartment 402', conf: 96, sla: 'Due today', conflict: true },
+    { id: '1450A9B7C23456-BLD-01-LVL-02-UNIT-201', title: 'Unit 201', conf: 95, sla: 'Due in 4 days', conflict: false },
+  ]},
+  { id: 'approved', label: 'Approved', cases: [
+    { id: '1450A9B7C23456-BLD-01-LVL-01', title: 'Floor 1 apartments', conf: 95, sla: '—', conflict: false },
+  ]},
+  { id: 'published', label: 'Published', cases: [
+    { id: '1450A9B7C23456-BLD-01-LVL-GF', title: 'Ground floor retail & lobby', conf: 90, sla: '—', conflict: false },
+  ]},
+];
 
-var DATASETS = []; /* hydrated by api.js */
+const DATASETS = [
+  { name: 'lakeview_lidar_pass_03.las', meta: '1.8 GB · LiDAR point cloud · EPSG:4326 · 02 Aug 2026', state: 'AI segmentation ready', icon: ICONS.layers },
+  { name: 'lakeview_floorplan_L4.pdf', meta: '4.2 MB · Floor plan · Uploaded 30 Jul 2026', state: 'Processed', icon: ICONS.file },
+  { name: 'ward12_parcel_boundary.geojson', meta: '640 KB · GeoJSON · EPSG:4326', state: 'Coordinate reference detected', icon: ICONS.layers },
+  { name: 'drone_orthophoto_ward12.tif', meta: '2.1 GB · Orthophoto · Flown 28 Jul 2026', state: 'Building envelope extracted', icon: ICONS.file },
+];
 
-var FLOOR_REVIEW = []; /* hydrated by api.js */
+const FLOOR_REVIEW = [
+  { label: 'Floor 5', conf: 91, note: 'Boundary matches submitted plan within tolerance.' },
+  { label: 'Floor 4', conf: 96, note: 'High point-density agreement; verified against as-built plan.' },
+  { label: 'Floor 3', conf: 88, note: 'Minor footprint deviation near south balcony — flagged for review.' },
+  { label: 'Basement B1', conf: 79, note: 'Point cloud sparse near ramp entry; manual check suggested.' },
+  { label: 'Basement B2', conf: 71, note: 'Overlaps utility buffer — awaiting surveyor confirmation.' },
+];
 
-var REPORTS = []; /* hydrated by api.js */
+const REPORTS = [
+  { name: 'Property Passport', desc: 'Single-property verified record, printable and shareable.', formats: ['PDF'] },
+  { name: '3D ULPIN Generation Report', desc: 'Summary of ID generation activity for a date range.', formats: ['PDF','CSV'] },
+  { name: 'Conflict Validation Report', desc: 'Full conflict log with severity, status, and resolution.', formats: ['PDF','CSV'] },
+  { name: 'Ward-level Cadastral Coverage', desc: 'Parcel and volume coverage by ward.', formats: ['PDF','GeoJSON','CityGML'] },
+  { name: 'Underground Utility Clash Report', desc: 'Utility-property intersections and buffer breaches.', formats: ['PDF','GeoJSON','CityGML'] },
+  { name: 'Pending Approval Report', desc: 'Cases awaiting officer decision, by SLA.', formats: ['PDF','CSV'] },
+  { name: 'Survey Confidence Report', desc: 'Confidence score breakdown by source and ward.', formats: ['CSV'] },
+  { name: 'Audit History Report', desc: 'Immutable log of all record changes.', formats: ['PDF','CSV'] },
+];
 
-var ACTIVITY = []; /* hydrated by api.js */
+const ACTIVITY = [
+  { c: 'var(--success)', t: 'Apartment 402 geometry verified by R. Mehta', time: '32 min ago' },
+  { c: 'var(--error)', t: 'New conflict opened — Basement B2 utility buffer', time: '1 hr ago' },
+  { c: 'var(--info)', t: 'LiDAR pass 03 uploaded for Lakeview Residency', time: '3 hr ago' },
+  { c: 'var(--warning)', t: 'Survey source for Shop 1 flagged as expired', time: 'Yesterday' },
+  { c: 'var(--success)', t: 'Ground floor retail & lobby published', time: 'Yesterday' },
+];
 
 /* ---------------------------------------------------------------- UTILITIES */
 
@@ -154,28 +364,13 @@ function initShell() {
     $('#appShell').classList.toggle('sidebar-collapsed');
   });
 
-  // The signed-in account's role is authoritative — the server enforces it and
-  // decides what data (e.g. unmasked owners) this session is allowed to see.
-  const account = window.Auth && Auth.user;
-  if (account) {
-    STATE.role = account.role;
-    const select = $('#roleSelect');
-    select.value = account.role;
-    select.disabled = true;
-    select.title = 'Signed in as ' + account.name + ' (' + account.role_label + ')';
-  }
-
-  const logoutBtn = $('#logoutBtn');
-  if (logoutBtn) logoutBtn.addEventListener('click', () => doLogout());
-
-  $('#notifBtn').addEventListener('click', async () => {
-    try {
-      const stats = await API.conflictStats();
-      toast(stats.active + ' open conflicts · ' + stats.critical + ' critical', ICONS.alert);
-    } catch (err) {
-      toast('Could not load notifications: ' + err.message, ICONS.alert);
-    }
+  $('#roleSelect').addEventListener('change', (e) => {
+    STATE.role = e.target.value;
+    applyRole();
+    toast('Switched to ' + e.target.options[e.target.selectedIndex].text + ' view');
   });
+
+  $('#notifBtn').addEventListener('click', () => toast('3 new notifications — conflicts and approvals'));
 
   applyRole();
 }
@@ -225,15 +420,19 @@ function updateNavAccess() {
 /* ---------------------------------------------------------------- OVERVIEW */
 
 function renderOverview() {
-  const overview = (window.HYDRATED && HYDRATED.overview) || {};
+  const activeConflicts = CONFLICTS.filter(c => c.sev !== 'clear');
+  const criticalConflicts = CONFLICTS.filter(c => c.sev === 'critical');
 
-  const heroName = window.Auth && Auth.user ? Auth.user.name : '';
-  const hero = $('.hero-band h1');
-  if (hero && heroName) hero.textContent = 'Welcome back, ' + heroName;
-
-  const kpis = overview.kpis || [];
+  const kpis = [
+    { label: 'Total Parcels', value: '2,184' },
+    { label: 'Total Buildings', value: '1,046' },
+    { label: 'Infrastructure Assets', value: '342' },
+    { label: 'Active Conflicts', value: String(activeConflicts.length), cls: 'warn' },
+    { label: 'Critical Conflicts', value: String(criticalConflicts.length), cls: 'down' },
+    { label: 'Area Under Analysis', value: '1.8 km²' },
+  ];
   $('#overviewKpis').innerHTML = kpis.map(k => `
-    <div class="kpi-card"><div class="label">${k.label}</div><div class="value">${k.value}</div>${k.cls ? `<div class="delta ${k.cls}">${k.delta || 'Needs attention'}</div>` : ''}</div>`).join('');
+    <div class="kpi-card"><div class="label">${k.label}</div><div class="value">${k.value}</div>${k.cls ? `<div class="delta ${k.cls}">Needs attention</div>` : ''}</div>`).join('');
 
   $('#recentConflicts').innerHTML = CONFLICTS.slice(0, 3).map((c, i) => {
     const m = severityMeta(c.sev);
@@ -250,7 +449,11 @@ function renderOverview() {
   $('#recentSurveys').innerHTML = DATASETS.slice(0, 3).map(d => `
     <div class="detail-row"><span class="k">${d.name}</span><span class="v badge badge-info" style="font-weight:600">${d.state}</span></div>`).join('');
 
-  const inspected = overview.recent_properties || [];
+  const inspected = [
+    { name: 'Lakeview Residency', bid: 'lakeview', when: '32 min ago', conf: 96 },
+    { name: 'DB Trade Centre', bid: 'dbtrade', when: '4 hr ago', conf: 69 },
+    { name: 'MP Nagar Zone II Plaza', bid: 'mpplaza', when: 'Yesterday', conf: 94 },
+  ];
   $('#recentProperties').innerHTML = inspected.map((p, i) => `
     <div class="detail-row clickable-row" data-inspect-idx="${i}">
       <span class="k">${p.name}<br><span style="color:var(--text-faint);font-size:11px">${p.when}</span></span>
@@ -262,7 +465,13 @@ function renderOverview() {
     selectBuilding(p.bid);
   }));
 
-  const projects = overview.active_projects || [];
+  const projects = [
+    { name: 'Metro Corridor — Phase 2', status: 'Under construction', pct: 61 },
+    { name: 'Water trunk main upgrade — Ward 12', status: 'In progress', pct: 34 },
+  ];
+  if (STATE.proposedInfra.analyzed) {
+    projects.unshift({ name: 'Proposed ' + INFRA_PROFILES[STATE.proposedInfra.type].label + ' (' + LOCALITY.buildings.find(b => b.id === STATE.proposedInfra.from).name + ' → ' + LOCALITY.buildings.find(b => b.id === STATE.proposedInfra.to).name + ')', status: STATE.proposedInfra.conflicts.length ? 'Conflicts flagged' : 'Clear — pending submission', pct: STATE.proposedInfra.conflicts.length ? 20 : 45 });
+  }
   $('#activeProjects').innerHTML = projects.map(p => `
     <div style="margin-bottom:12px">
       <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px"><strong>${p.name}</strong><span style="color:var(--text-secondary)">${p.status}</span></div>
@@ -797,21 +1006,11 @@ function renderProposedInfraForm() {
   $('#proposeTo').addEventListener('change', (e) => { p.to = e.target.value; });
   $('#proposeWidth').addEventListener('input', (e) => { p.width = +e.target.value; $('#proposeWidthVal').textContent = p.width + ' m'; });
   $('#proposeDepth').addEventListener('input', (e) => { p.depth = +e.target.value; $('#proposeDepthVal').textContent = p.depth + ' m — X, Y position from the From/To route, Z from this depth'; });
-  $('#runProposeAnalysisBtn').addEventListener('click', async () => {
-    const btn = $('#runProposeAnalysisBtn');
-    btn.disabled = true;
-    btn.textContent = 'Running analysis…';
-    try {
-      await analyzeProposedInfra();
-      renderProposedMapPreview();
-      renderProposedInfraResults();
-      toast(p.conflicts.length ? p.conflicts.length + ' conflict(s) detected along the proposed route' : 'No conflicts detected — route is clear');
-    } catch (err) {
-      toast('Analysis failed: ' + err.message, ICONS.alert);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Run 3D Conflict Analysis';
-    }
+  $('#runProposeAnalysisBtn').addEventListener('click', () => {
+    analyzeProposedInfra();
+    renderProposedMapPreview();
+    renderProposedInfraResults();
+    toast(p.conflicts.length ? p.conflicts.length + ' conflict(s) detected along the proposed route' : 'No conflicts detected — route is clear');
   });
 }
 
@@ -951,9 +1150,28 @@ function initUndergroundPage() {
 
 /* ---------------------------------------------------------------- USER & ROLE MANAGEMENT */
 
-var PERMISSION_MATRIX = []; /* hydrated by api.js */
+const PERMISSION_MATRIX = [
+  ['3D Cadastre Explorer', true, true, true, 'Public view only'],
+  ['Conflict Radar', true, true, false, false],
+  ['Proposed Infrastructure', true, true, false, false],
+  ['Vertical Stack', true, false, true, false],
+  ['Underground / X-Ray', true, false, true, false],
+  ['Survey & Data Intake', true, false, true, false],
+  ['Property Search', true, true, true, true],
+  ['Property Passport', true, true, false, 'Masked data'],
+  ['Analytics & Reports', true, true, false, false],
+  ['User & Role Management', true, false, false, false],
+];
 
-var DEMO_USERS = []; /* hydrated by api.js */
+const DEMO_USERS = [
+  { name: 'R. Mehta', role: 'Government / Planner', org: 'Bhopal Municipal Corporation', active: '2 min ago', status: 'Active' },
+  { name: 'S. Verma', role: 'Government / Planner', org: 'MP Urban Development Dept.', active: '1 hr ago', status: 'Active' },
+  { name: 'N. Iqbal', role: 'Architect / Surveyor', org: 'GeoSurv Consultants', active: 'Yesterday', status: 'Active' },
+  { name: 'R. Bansal', role: 'Architect / Surveyor', org: 'GeoSurv Consultants', active: '3 days ago', status: 'Active' },
+  { name: 'K. Nair', role: 'Constructor / Engineer', org: 'BMRC (Metro Corridor)', active: '5 hr ago', status: 'Active' },
+  { name: 'A. Sharma', role: 'Public User', org: '—', active: '2 days ago', status: 'Active' },
+  { name: 'V. Deshpande', role: 'Constructor / Engineer', org: 'Deshpande Infra Pvt. Ltd.', active: '2 weeks ago', status: 'Inactive' },
+];
 
 function renderUsersPage() {
   $('#permissionMatrixBody').innerHTML = PERMISSION_MATRIX.map(row => `
@@ -961,33 +1179,6 @@ function renderUsersPage() {
       <td data-label="Module">${row[0]}</td>
       ${row.slice(1).map((v, i) => `<td data-label="${['Government / Planner', 'Constructor / Engineer', 'Architect / Surveyor', 'Public User'][i]}">${v === true ? '<span class="badge badge-success">' + ICONS.check + 'Full</span>' : v === false ? '<span class="badge badge-neutral">—</span>' : '<span class="badge badge-info">' + v + '</span>'}</td>`).join('')}
     </tr>`).join('');
-
-  const addBtn = $('#addUserBtn');
-  if (addBtn && !addBtn.dataset.wired) {
-    addBtn.dataset.wired = '1';
-    addBtn.addEventListener('click', async () => {
-      const name = prompt('Full name');
-      if (!name) return;
-      const email = prompt('Email address');
-      if (!email) return;
-      const role = prompt('Role — one of: planner, constructor, surveyor, public', 'public');
-      if (!role) return;
-      const password = prompt('Temporary password (min 8 characters)');
-      if (!password) return;
-      const organization = prompt('Organization (optional)') || null;
-      try {
-        await API.createUser({ name, email, password, role: role.trim(), organization });
-        await hydrateAdminUsers();
-        renderUsersPage();
-        toast(name + ' added as ' + role);
-      } catch (err) {
-        const detail = err.errors && err.errors.length
-          ? err.errors.map(x => x.field + ': ' + x.message).join('; ')
-          : err.message;
-        toast('Could not add user: ' + detail, ICONS.alert);
-      }
-    });
-  }
 
   $('#usersTableBody').innerHTML = DEMO_USERS.map(u => `
     <tr>
@@ -1228,7 +1419,7 @@ function renderExplorerDetail() {
     <div class="detail-row"><span class="k">Survey number</span><span class="v">${meta.surveyNo}</span></div>
     <div class="detail-row"><span class="k">Ward / Zone</span><span class="v">${meta.ward} · ${meta.zone}</span></div>
     <div class="detail-row"><span class="k">Location</span><span class="v" style="text-align:right;max-width:170px">${meta.address}</span></div>
-    <div class="detail-row"><span class="k">Coordinates</span><span class="v mono" style="font-size:11px">${typeof meta.lat === 'number' ? meta.lat.toFixed(4) + ', ' + meta.lng.toFixed(4) : 'Not surveyed'}</span></div>
+    <div class="detail-row"><span class="k">Coordinates</span><span class="v mono" style="font-size:11px">${meta.lat.toFixed(4)}, ${meta.lng.toFixed(4)}</span></div>
     <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--text-secondary);margin:10px 0 4px">Land Information</h4>
     <div class="detail-row"><span class="k">Land use</span><span class="v">${meta.landUse}</span></div>
     <div class="detail-row"><span class="k">Boundary dimensions</span><span class="v">${meta.boundaryDims}</span></div>
@@ -1324,7 +1515,11 @@ function renderExplorerDetail() {
   if (reportBtn) reportBtn.addEventListener('click', () => { toast('Generating property report for ' + meta.name); goToReportsTab(); });
 }
 
-var VSTACK_ROAD_INFO = {}; /* hydrated by api.js */
+const VSTACK_ROAD_INFO = {
+  lakeview: 'Frontage on Main Road; 210 m from the proposed metro station.',
+  dbtrade: 'Fronts the metro corridor directly; piers proposed within 4.5 m of the parcel boundary.',
+  mpplaza: 'Set back from Main Road behind Shaurya Smarak Park; no direct metro frontage.',
+};
 
 function buildingLevelSet(bid) {
   if (bid === 'lakeview') return { levels: LEVELS, detail: LEVEL_DETAIL, meta: LAKEVIEW_META };
@@ -1513,7 +1708,14 @@ function initExplorer() {
 
 /* ---------------------------------------------------------------- SEARCH */
 
-var SEARCH_RESULTS = []; /* hydrated by api.js */
+const SEARCH_RESULTS = [
+  { addr: 'Lakeview Residency, MP Nagar Zone II (Apartment 402)', parent: '1450A9B7C23456', buildingId: 'lakeview', id3d: '...-BLD-01-LVL-04-UNIT-402', status: 'Verified', conf: 96, conflict: true, date: '18 Aug 2026' },
+  { addr: 'Lakeview Residency, MP Nagar Zone II (Shop 3, GF)', parent: '1450A9B7C23456', buildingId: 'lakeview', id3d: '...-BLD-01-LVL-GF-SHOP3', status: 'Review Required', conf: 74, conflict: true, date: '02 Jul 2026' },
+  { addr: 'Lakeview Residency, MP Nagar Zone II (Floor 1)', parent: '1450A9B7C23456', buildingId: 'lakeview', id3d: '...-BLD-01-LVL-01', status: 'Verified', conf: 95, conflict: false, date: '11 Jun 2026' },
+  { addr: 'Lakeview Residency, MP Nagar Zone II (Basement B2)', parent: '1450A9B7C23456', buildingId: 'lakeview', id3d: '...-BLD-01-LVL-B2', status: 'Low Confidence', conf: 71, conflict: true, date: '30 Jul 2026' },
+  { addr: 'DB Trade Centre, MP Nagar Zone I (Floor 2)', parent: '1450B2C88F1122', buildingId: 'dbtrade', id3d: '...-BLD-01-LVL-02', status: 'Low Confidence', conf: 69, conflict: true, date: '09 Aug 2026' },
+  { addr: 'MP Nagar Zone II Plaza (Floor 3)', parent: '1450C7A55D3390', buildingId: 'mpplaza', id3d: '...-BLD-01-LVL-03', status: 'Verified', conf: 94, conflict: false, date: '22 Jul 2026' },
+];
 
 function initSpatialQuery() {
   $all('.search-method-chip').forEach(chip => chip.addEventListener('click', () => {
@@ -1525,18 +1727,11 @@ function initSpatialQuery() {
   }));
 
   $('#spatialRadius').addEventListener('input', renderSpatialMiniMap);
-  $('#runSpatialBtn').addEventListener('click', async () => {
+  $('#runSpatialBtn').addEventListener('click', () => {
     const r = $('#spatialRadius').value;
-    const center = STATE.explorer.buildingId || 'lakeview';
-    $('#spatialResultCount').textContent = 'Running spatial query…';
-    try {
-      const res = await API.spatialQuery(center, r);
-      $('#spatialResultCount').textContent =
-        `Found ${res.count} property volume${res.count === 1 ? '' : 's'} within ${r} m of ${res.center.name}, including ${res.conflicts} active conflict${res.conflicts === 1 ? '' : 's'}.`;
-      toast('Spatial query complete — ' + res.count + ' volumes found');
-    } catch (err) {
-      $('#spatialResultCount').textContent = 'Spatial query failed: ' + err.message;
-    }
+    const count = Math.max(1, Math.round(r / 40));
+    $('#spatialResultCount').textContent = `Found ${count} property volumes within ${r} m, including 1 active conflict.`;
+    toast('Spatial query complete — ' + count + ' volumes found');
   });
 }
 
@@ -1647,7 +1842,12 @@ function renderWizardPanel() {
     html = `
       <h3 style="margin-bottom:6px">Validate geometry</h3>
       <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px">Running topology checks against the parent parcel and neighbouring volumes.</p>
-      <div id="wizardValidation"><div class="scan-stage-row active"><div class="stage-icon"></div>Running checks…</div></div>`;
+      <div class="scan-stage-row done"><div class="stage-icon">${ICONS.check}</div>Geometry validity — passed</div>
+      <div class="scan-stage-row done"><div class="stage-icon">${ICONS.check}</div>Parent containment — passed</div>
+      <div class="scan-stage-row active"><div class="stage-icon"></div>Intersection detection — 1 conflict found (fire-escape overlap)</div>
+      <div class="scan-stage-row pending"><div class="stage-icon"></div>ID duplication check</div>
+      <div class="scan-stage-row pending"><div class="stage-icon"></div>Document completeness</div>
+      <div class="plain-explain" style="margin-top:14px">Apartment 402 overlaps 14.8 m³ with the approved fire-escape volume on Level 4. You can still submit — this will route the record to Conflict Radar for officer review.</div>`;
   } else if (step === 6) {
     html = `
       <h3 style="margin-bottom:6px">Preview generated IDs</h3>
@@ -1667,99 +1867,19 @@ function renderWizardPanel() {
   }
   panel.innerHTML = html;
 
-  if (step === 2) {
-    const coords = $all('.coord-grid input', panel);
-    const keys = ['x', 'y', 'z', 'levelNo', 'depth'];
-    coords.forEach((input, i) => {
-      input.addEventListener('input', () => {
-        const v = parseFloat(input.value);
-        STATE.wizard[keys[i]] = keys[i] === 'levelNo' ? input.value.trim() : (isNaN(v) ? null : v);
-      });
-    });
-  }
   if (step === 3) {
     $all('#unitTypeGrid .option-tile').forEach(t => t.addEventListener('click', () => {
       STATE.wizard.unitType = t.dataset.type;
       renderWizardPanel();
     }));
-    const unitInput = $('#unitNumberInput');
-    if (unitInput) {
-      STATE.wizard.unitNumber = STATE.wizard.unitNumber || unitInput.value;
-      unitInput.addEventListener('input', () => { STATE.wizard.unitNumber = unitInput.value.trim(); });
-    }
   }
-  if (step === 4) {
-    const selects = $all('.field select', panel);
-    const area = $('textarea', panel);
-    const keys = ['ownership', 'parking', 'commonAccess'];
-    selects.forEach((sel, i) => {
-      STATE.wizard[keys[i]] = STATE.wizard[keys[i]] || sel.options[sel.selectedIndex].text;
-      sel.addEventListener('change', () => { STATE.wizard[keys[i]] = sel.options[sel.selectedIndex].text; });
-    });
-    if (area) {
-      STATE.wizard.restrictions = STATE.wizard.restrictions || area.value;
-      area.addEventListener('input', () => { STATE.wizard.restrictions = area.value; });
-    }
-  }
-  if (step === 5) loadWizardValidation();
   if (step === 7) {
-    $('#wizardSubmitBtn').addEventListener('click', async () => {
-      const btn = $('#wizardSubmitBtn');
-      btn.disabled = true;
-      btn.textContent = 'Submitting…';
-      try {
-        const res = await API.generateUlpin({
-          parent_ulpin: STATE.wizard.parcel,
-          building_slug: 'lakeview',
-          building_no: '01',
-          level_code: STATE.wizard.levelCode || 'floor4',
-          level_no: STATE.wizard.levelNo || '4',
-          unit_type: STATE.wizard.unitType || 'Apartment',
-          unit_number: STATE.wizard.unitNumber || '402',
-          x: STATE.wizard.x, y: STATE.wizard.y, z: STATE.wizard.z,
-          ownership: STATE.wizard.ownership,
-          parking_entitlement: STATE.wizard.parking,
-          common_area_access: STATE.wizard.commonAccess,
-          restrictions: STATE.wizard.restrictions,
-          submit_for_approval: true,
-        });
-        await Promise.all([hydrateCadastreLevels(), hydrateApprovals(), hydrateSearch()]);
-        renderApprovalKanban();
-        renderApprovalTable();
-        toast('Registered ' + res.ids.generated_3d_id + ' and routed it for approval');
-        goToView('approvals');
-      } catch (err) {
-        toast(err.status === 409
-          ? 'That 3D ULPIN already exists — change the unit number (Rule ID-01)'
-          : 'Submission failed: ' + err.message, ICONS.alert);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Submit for Approval';
-      }
+    $('#wizardSubmitBtn').addEventListener('click', () => {
+      toast('Submitted 1450A9B7C23456-BLD-01-LVL-04-UNIT-402 for approval');
+      goToView('approvals');
     });
   }
   renderWizardNav();
-}
-
-/* Wizard step 6 — real topology checks from the backend. */
-async function loadWizardValidation() {
-  const host = $('#wizardValidation');
-  if (!host) return;
-  try {
-    const res = await API.validateGeometry({
-      building: 'lakeview',
-      level_code: STATE.wizard.levelCode || 'floor4',
-    });
-    host.innerHTML = res.checks.map(c => {
-      const cls = c.status === 'passed' ? 'done' : c.status === 'failed' ? 'active' : 'pending';
-      const icon = c.status === 'passed' ? ICONS.check : c.status === 'failed' ? ICONS.alert : '';
-      return `<div class="scan-stage-row ${cls}"><div class="stage-icon">${icon}</div>${c.name} — ${c.detail}</div>`;
-    }).join('') + (res.notes.length
-      ? `<div class="plain-explain" style="margin-top:14px">${res.notes.join(' ')} You can still submit — this will route the record to Conflict Radar for officer review.</div>`
-      : `<div class="plain-explain" style="margin-top:14px">All checks passed. This record can be submitted for approval.</div>`);
-  } catch (err) {
-    host.innerHTML = `<div class="scan-stage-row active"><div class="stage-icon">${ICONS.alert}</div>Validation unavailable: ${err.message}</div>`;
-  }
 }
 
 function renderWizardNav() {
@@ -1786,11 +1906,9 @@ function renderWizard() {
 /* ---------------------------------------------------------------- INTAKE */
 
 function renderIntake() {
-  const datasetIcon = (kind) => (kind === 'lidar' || kind === 'geojson' || kind === 'shapefile')
-    ? ICONS.layers : ICONS.file;
   $('#datasetList').innerHTML = DATASETS.map(d => `
     <div class="dataset-card">
-      <div class="dc-icon">${d.icon || datasetIcon(d.kind)}</div>
+      <div class="dc-icon">${d.icon}</div>
       <div class="dc-body"><div class="dc-name">${d.name}</div><div class="dc-meta">${d.meta}</div></div>
       <span class="badge badge-info">${d.state}</span>
     </div>`).join('');
@@ -1800,58 +1918,6 @@ function renderIntake() {
     <div class="scan-stage-row ${i < 5 ? 'done' : 'active'}"><div class="stage-icon">${i < 5 ? ICONS.check : ''}</div>${s}</div>`).join('');
 
   $('#fieldModeBtn').addEventListener('click', () => toast('Field Survey Mode: GPS capture, offline sync queue, and photo upload would open here on a mobile device.'));
-
-  wireDatasetUpload();
-}
-
-/* Real uploads: the dropzone and the Browse button post to POST /api/datasets. */
-function wireDatasetUpload() {
-  const zone = $('.dropzone');
-  if (!zone || zone.dataset.wired) return;
-  zone.dataset.wired = '1';
-
-  let picker = $('#datasetFileInput');
-  if (!picker) {
-    picker = document.createElement('input');
-    picker.type = 'file';
-    picker.id = 'datasetFileInput';
-    picker.multiple = true;
-    picker.style.display = 'none';
-    picker.accept = '.geojson,.json,.shp,.zip,.dxf,.dwg,.las,.laz,.tif,.tiff,.pdf,.png,.jpg,.jpeg,.csv,.txt';
-    zone.appendChild(picker);
-  }
-
-  const upload = async (files) => {
-    const building = STATE.explorer.buildingId || 'lakeview';
-    for (const file of Array.from(files)) {
-      toast('Uploading ' + file.name + '…', ICONS.file);
-      try {
-        const ds = await API.uploadDataset(file, building, 'EPSG:4326');
-        toast(ds.name + ' — ' + ds.state);
-      } catch (err) {
-        toast('Upload failed for ' + file.name + ': ' + err.message, ICONS.alert);
-      }
-    }
-    await hydrateIntake();
-    renderIntake();
-    renderIntakeReview();
-  };
-
-  const browseBtn = $('button', zone);
-  if (browseBtn) browseBtn.addEventListener('click', (e) => { e.preventDefault(); picker.click(); });
-  picker.addEventListener('change', () => { if (picker.files.length) upload(picker.files); picker.value = ''; });
-
-  ['dragenter', 'dragover'].forEach(evt => zone.addEventListener(evt, (e) => {
-    e.preventDefault();
-    zone.classList.add('dropzone-active');
-  }));
-  ['dragleave', 'drop'].forEach(evt => zone.addEventListener(evt, (e) => {
-    e.preventDefault();
-    zone.classList.remove('dropzone-active');
-  }));
-  zone.addEventListener('drop', (e) => {
-    if (e.dataTransfer && e.dataTransfer.files.length) upload(e.dataTransfer.files);
-  });
 }
 
 function renderIntakeReview() {
@@ -1868,22 +1934,7 @@ function renderIntakeReview() {
     </div>`;
   }).join('');
   const btn = $('#submitSegBtn');
-  if (btn) btn.onclick = async () => {
-    btn.disabled = true;
-    try {
-      const res = await API.submitSegmentation({ building: 'lakeview' });
-      await hydrateIntake();
-      renderIntakeReview();
-      toast(res.submitted + ' floor bands submitted for surveyor verification');
-      goToView('conflicts');
-    } catch (err) {
-      toast(err.status === 404
-        ? 'No pending floor bands — all bands are already verified'
-        : 'Submit failed: ' + err.message, ICONS.alert);
-    } finally {
-      btn.disabled = false;
-    }
-  };
+  if (btn) btn.onclick = () => { toast('Segmentation submitted for surveyor verification'); goToView('conflicts'); };
 }
 
 /* ---------------------------------------------------------------- CONFLICT RADAR */
@@ -1911,14 +1962,13 @@ function renderConflictSeverityStrip() {
 }
 
 function renderConflictKpis() {
-  const s = (window.HYDRATED && HYDRATED.conflictStats) || {};
   const kpis = [
-    { label: 'Total conflicts', value: String(s.total ?? '—'), delta: 'All recorded cases', cls: 'warn' },
-    { label: 'Critical', value: String(s.critical ?? '—'), delta: 'Needs officer action', cls: 'down' },
-    { label: 'Pending review', value: String(s.pending_review ?? '—'), delta: '', cls: '' },
-    { label: 'Resolved this month', value: String(s.resolved_this_month ?? '—'), delta: '', cls: 'up' },
-    { label: 'Volumes scanned', value: String(s.volumes_scanned ?? '—'), delta: 'Registered 3D volumes', cls: '' },
-    { label: 'Topology validity', value: (s.topology_validity ?? '—') + '%', delta: '', cls: 'up' },
+    { label: 'Total conflicts', value: '24', delta: '+3 this week', cls: 'warn' },
+    { label: 'Critical', value: '2', delta: 'Needs officer action', cls: 'down' },
+    { label: 'Pending review', value: '5', delta: '', cls: '' },
+    { label: 'Resolved this month', value: '17', delta: '+6 vs last month', cls: 'up' },
+    { label: 'Volumes scanned', value: '6,930', delta: 'Last run 08:12 today', cls: '' },
+    { label: 'Topology validity', value: '97.1%', delta: '+0.4pt', cls: 'up' },
   ];
   $('#conflictKpis').innerHTML = kpis.map(k => `
     <div class="kpi-card"><div class="label">${k.label}</div><div class="value">${k.value}</div><div class="delta ${k.cls}">${k.delta}</div></div>`).join('');
@@ -1976,22 +2026,7 @@ function openConflictDrawer(c) {
   $('#conflictInspectInfra').addEventListener('click', () => { overlay.classList.remove('open'); goToView('utility'); });
   $('#conflictGenReport').addEventListener('click', () => { overlay.classList.remove('open'); toast('Generating conflict report for ' + c.prop); goToReportsTab(); });
   const resolveBtn = $('#resolveConflictBtn');
-  if (resolveBtn) resolveBtn.addEventListener('click', async () => {
-    if (c.sev === 'clear') { toast('This conflict is already resolved'); return; }
-    resolveBtn.disabled = true;
-    try {
-      await API.resolveConflict(c.id, 'Resolved from the Conflict Radar drawer.');
-      await hydrateConflicts();
-      await hydrateCadastreLevels();
-      renderConflictKpis();
-      renderConflictTable();
-      toast('Conflict resolved and recorded in the audit trail');
-      overlay.classList.remove('open');
-    } catch (err) {
-      resolveBtn.disabled = false;
-      toast('Could not resolve: ' + err.message, ICONS.alert);
-    }
-  });
+  if (resolveBtn) resolveBtn.addEventListener('click', () => { toast('Conflict marked resolved'); overlay.classList.remove('open'); });
 }
 
 function initConflicts() {
@@ -1999,41 +2034,19 @@ function initConflicts() {
   renderConflictTable();
   $('#conflictDrawer').addEventListener('click', (e) => { if (e.target.id === 'conflictDrawer') e.currentTarget.classList.remove('open'); });
 
-  $('#runValidationBtn').addEventListener('click', async () => {
+  $('#runValidationBtn').addEventListener('click', () => {
     if (STATE.conflicts.scanning) return;
     STATE.conflicts.scanning = true;
     const box = $('#scanBox');
     box.style.display = 'block';
-    $('#scanProgress').style.width = '0%';
-    $('#scanPct').textContent = '0%';
-
-    let result;
-    try {
-      result = await API.runValidation();
-    } catch (err) {
-      STATE.conflicts.scanning = false;
-      box.style.display = 'none';
-      toast('Validation failed: ' + err.message, ICONS.alert);
-      return;
-    }
-
-    // Reveal the real per-stage results progressively so the scan stays legible.
-    $('#scanStages').innerHTML = result.stages.map(s =>
-      `<div class="scan-stage-row pending" title="${s.detail}"><div class="stage-icon"></div>${s.name}</div>`).join('');
-    const rows = $all('.scan-stage-row', box);
+    const stages = ['Geometry validity', 'Parent containment', 'Intersection detection', 'ID duplication check', 'Utility buffer safety', 'Document completeness'];
+    $('#scanStages').innerHTML = stages.map(s => `<div class="scan-stage-row pending"><div class="stage-icon"></div>${s}</div>`).join('');
     let i = 0;
-    const interval = setInterval(async () => {
-      if (i > 0) {
-        const prev = rows[i - 1];
-        const stage = result.stages[i - 1];
-        prev.classList.remove('active');
-        prev.classList.add(stage.status === 'failed' ? 'failed' : 'done');
-        prev.querySelector('.stage-icon').innerHTML = stage.status === 'failed' ? ICONS.alert : ICONS.check;
-        prev.innerHTML += ` <span style="margin-left:auto;font-size:11px;color:var(--text-secondary)">${stage.detail}</span>`;
-      }
+    const rows = $all('.scan-stage-row', box);
+    const interval = setInterval(() => {
+      if (i > 0) { rows[i - 1].classList.remove('active'); rows[i - 1].classList.add('done'); rows[i - 1].querySelector('.stage-icon').innerHTML = ICONS.check; }
       if (i < rows.length) {
-        rows[i].classList.remove('pending');
-        rows[i].classList.add('active');
+        rows[i].classList.remove('pending'); rows[i].classList.add('active');
         const pct = Math.round(((i + 1) / rows.length) * 100);
         $('#scanProgress').style.width = pct + '%';
         $('#scanPct').textContent = pct + '%';
@@ -2041,13 +2054,10 @@ function initConflicts() {
       } else {
         clearInterval(interval);
         STATE.conflicts.scanning = false;
-        toast(`Validation complete — ${result.total_conflicts} conflicts, ${result.critical} critical, ${result.volumes_scanned} volumes scanned`);
-        await hydrateConflicts();
-        renderConflictKpis();
-        renderConflictTable();
+        toast('Validation complete — 24 conflicts, 2 critical');
         setTimeout(() => { box.style.display = 'none'; }, 900);
       }
-    }, 420);
+    }, 550);
   });
 }
 
@@ -2109,30 +2119,18 @@ function openCaseDrawer(id) {
     </div>
     <div class="detail-actions" style="margin-top:16px">
       <button class="btn btn-primary btn-sm" id="approveCaseBtn">Approve</button>
-      <button class="btn btn-sm" id="returnCaseBtn">Return for correction</button>
-      <button class="btn btn-sm" id="resurveyCaseBtn">Request re-survey</button>
-      <button class="btn btn-danger btn-sm" id="rejectCaseBtn">Reject</button>
+      <button class="btn btn-sm">Return for correction</button>
+      <button class="btn btn-sm">Request re-survey</button>
+      <button class="btn btn-danger btn-sm">Reject</button>
     </div>`;
   overlay.classList.add('open');
   $('#closeCaseDrawer').addEventListener('click', () => overlay.classList.remove('open'));
-  const decide = async (action, label) => {
-    if (!c.caseId) { toast('This case has no backend record'); return; }
-    if (!confirm(label + ' ' + c.title + '? This action will be recorded in the audit trail.')) return;
-    try {
-      await API.decideCase(c.caseId, action);
-      await hydrateApprovals();
-      renderApprovalKanban();
-      renderApprovalTable();
-      toast(c.title + ' — ' + label.toLowerCase() + 'd');
+  $('#approveCaseBtn').addEventListener('click', () => {
+    if (confirm('Approve ' + c.title + '? This action will be recorded in the audit trail.')) {
+      toast(c.title + ' approved');
       overlay.classList.remove('open');
-    } catch (err) {
-      toast('Could not ' + label.toLowerCase() + ': ' + err.message, ICONS.alert);
     }
-  };
-  $('#approveCaseBtn').addEventListener('click', () => decide('approve', 'Approve'));
-  $('#returnCaseBtn').addEventListener('click', () => decide('return_for_correction', 'Return'));
-  $('#resurveyCaseBtn').addEventListener('click', () => decide('request_resurvey', 'Request re-survey for'));
-  $('#rejectCaseBtn').addEventListener('click', () => decide('reject', 'Reject'));
+  });
 }
 
 function initApprovals() {
@@ -2156,18 +2154,12 @@ function renderUtilitySvg() {
   const layers = { water: $all('.util-layer').find(l => l.dataset.layer === 'water')?.checked ?? true,
     sewer: true, fibre: true, gas: false };
   $all('.util-layer').forEach(cb => layers[cb.dataset.layer] = cb.checked);
-  // Depths, colours and agencies come from the registered utility assets.
-  const assets = (window.HYDRATED && HYDRATED.utilityAssets) || [];
-  const keyFor = (slug) => slug.split('-')[0].replace('fibre', 'fibre');
-  const rows = assets.map(a => {
-    const depth = Math.abs(a.depth_m);
-    return {
-      key: keyFor(a.slug),
-      y: 60 + depth * 25,
-      label: a.name.replace(/ (line|conduit)$/i, '') + ' — ' + depth + ' m',
-      color: a.color || '#8b98a5',
-    };
-  });
+  const rows = [
+    { key: 'water', y: 130, label: 'Water — 3.8 m', color: '#2563a9' },
+    { key: 'sewer', y: 160, label: 'Sewer — 2.9 m', color: '#6b4f2a' },
+    { key: 'fibre', y: 100, label: 'Fibre — 2.6 m', color: '#2F6F73' },
+    { key: 'gas', y: 190, label: 'Gas — 3.2 m', color: '#c8831a' },
+  ];
   const depth = parseFloat($('#digDepth') ? $('#digDepth').value : 3.5);
   const digY = 40 + depth * 25;
   let svg = `<svg viewBox="0 0 420 230" width="100%" style="max-width:520px"><rect width="420" height="230" fill="#eef2f5"/>
@@ -2186,54 +2178,21 @@ function renderUtilitySvg() {
   $('#utilitySvgHost').innerHTML = svg;
 }
 
-async function checkDigSafe() {
+function checkDigSafe() {
   const depth = parseFloat($('#digDepth').value);
-  const footprintSelect = $('#view-utility .field select');
   const result = $('#digSafeResult');
-  result.innerHTML = '<div class="digsafe-result digsafe-review">Checking clearance…</div>';
-  try {
-    const res = await API.digSafe({
-      depth_m: depth,
-      footprint: footprintSelect ? footprintSelect.options[footprintSelect.selectedIndex].text : undefined,
-    });
-    const cls = { clear: 'digsafe-clear', review: 'digsafe-review', prohibited: 'digsafe-prohibited' }[res.verdict];
-    const icon = res.verdict === 'clear' ? ICONS.check : ICONS.alert;
-    // Only list the assets in the way when the zone actually needs review.
-    const assets = res.verdict === 'clear' ? '' : (res.conflicting_assets || []).map(a =>
-      `<div class="detail-row"><span class="k">${a.name} (${a.depth_m} m)</span><span class="v">${a.clearance_m} m clearance · ${a.agency || '—'}</span></div>`).join('');
-    result.innerHTML = `<div class="digsafe-result ${cls}">${icon}<span>${res.message}</span></div>${assets}`;
-  } catch (err) {
-    result.innerHTML = `<div class="digsafe-result digsafe-prohibited">${ICONS.alert}<span>Clearance check failed: ${err.message}</span></div>`;
-  }
+  let cls, icon, text;
+  if (depth < 2.4) { cls = 'digsafe-clear'; icon = ICONS.check; text = 'Clear — no utility conflict detected at this depth.'; }
+  else if (depth < 3.6) { cls = 'digsafe-review'; icon = ICONS.alert; text = 'Review required — proposed zone is within the fibre / sewer safety buffer.'; }
+  else { cls = 'digsafe-prohibited'; icon = ICONS.alert; text = 'Prohibited — proposed zone intersects the water line and its 1.5 m safety buffer.'; }
+  result.innerHTML = `<div class="digsafe-result ${cls}">${icon}<span>${text}</span></div>`;
 }
 
 function initUtility() {
-  renderUtilityRegistry();
   renderUtilitySvg();
   $all('.util-layer').forEach(cb => cb.addEventListener('change', renderUtilitySvg));
   $('#digDepth').addEventListener('input', renderUtilitySvg);
   $('#digSafeBtn').addEventListener('click', checkDigSafe);
-}
-
-/* Asset registry card + layer toggles, driven by the registered assets. */
-function renderUtilityRegistry() {
-  const assets = (window.HYDRATED && HYDRATED.utilityAssets) || [];
-  if (!assets.length) return;
-
-  const registry = $('#utilityAssetRegistry');
-  if (registry) {
-    registry.innerHTML = assets.map(a => `
-      <div class="detail-row"><span class="k">${a.name}</span><span class="v">${a.agency || '—'} · ${a.condition || '—'}</span></div>`).join('') +
-      `<div class="detail-row"><span class="k">Safety buffer</span><span class="v">1.5 m radial</span></div>`;
-  }
-
-  const toggleHost = $('#utilityLayerToggles');
-  if (toggleHost) {
-    toggleHost.innerHTML = assets.map((a, i) => {
-      const key = a.slug.split('-')[0];
-      return `<label style="display:flex;align-items:center;gap:6px"><input type="checkbox" ${i < 3 ? 'checked' : ''} class="util-layer" data-layer="${key}">${a.name.replace(/ (line|conduit)$/i, '')} (${a.depth_m}m)</label>`;
-    }).join('');
-  }
 }
 
 /* ---------------------------------------------------------------- PASSPORT */
@@ -2251,15 +2210,17 @@ function initPassport() {
 /* ---------------------------------------------------------------- ANALYTICS */
 
 function renderAnalytics() {
-  const a = (window.HYDRATED && HYDRATED.analytics) || {};
-  const kpis = a.kpis || [];
+  const kpis = [
+    { label: 'Parent parcels', value: '2,184' }, { label: 'Buildings digitized', value: '1,046' },
+    { label: '3D volumes generated', value: '6,930' }, { label: 'Verified records', value: '5,412' },
+    { label: 'Conflict count', value: '24' }, { label: 'Pending approvals', value: '11' },
+    { label: 'Underground assets mapped', value: '318' }, { label: 'Avg. validation confidence', value: '88.2' },
+  ];
   $('#analyticsKpis').innerHTML = kpis.map(k => `<div class="kpi-card"><div class="label">${k.label}</div><div class="value">${k.value}</div></div>`).join('');
 
-  // Scale the throughput bars against the busiest week so real counts stay readable.
-  const rawTrend = a.trend || [];
-  const peak = Math.max(1, ...rawTrend.map(t => t.surveyed));
-  const trend = rawTrend.map(t => [t.label, Math.round(t.surveyed / peak * 100), Math.round(t.approved / peak * 100), t.surveyed]);
-  $('#trendChart').innerHTML = trend.map(([label, surveyed, approved, rawCount]) => `
+  const trend = [ ['W1', 62, 40], ['W2', 70, 48], ['W3', 58, 52], ['W4', 84, 61], ['W5', 91, 70], ['W6', 77, 66] ];
+  const maxV = 100;
+  $('#trendChart').innerHTML = trend.map(([label, surveyed, approved]) => `
     <div class="bc-col">
       <div class="bc-val">${surveyed}</div>
       <div style="width:100%;display:flex;justify-content:center;gap:3px;height:100%;align-items:flex-end">
@@ -2269,7 +2230,7 @@ function renderAnalytics() {
       <div class="bc-label">${label}</div>
     </div>`).join('');
 
-  const donut = a.confidence_distribution || [];
+  const donut = [ { label: 'Verified', pct: 62, color: '#2e7d5b' }, { label: 'Review needed', pct: 27, color: '#c8831a' }, { label: 'Low confidence', pct: 11, color: '#b64242' } ];
   let acc = 0;
   const circles = donut.map(d => {
     const dash = `${d.pct} ${100 - d.pct}`;
@@ -2280,25 +2241,31 @@ function renderAnalytics() {
   $('#donutChart').innerHTML = circles;
   $('#donutLegend').innerHTML = donut.map(d => `<div class="dl-item"><span class="dl-swatch" style="background:${d.color}"></span>${d.label} — ${d.pct}%</div>`).join('');
 
-  const wards = (a.ward_conflicts || []).map(w => [w.ward, w.count]);
-  const maxW = Math.max(1, ...wards.map(w => w[1]));
+  const wards = [ ['MP Nagar', 24], ['Ward 7', 19], ['Ward 3', 14], ['Ward 9', 10], ['Ward 15', 6] ];
+  const maxW = Math.max(...wards.map(w => w[1]));
   $('#wardConflictChart').innerHTML = wards.map(([w, v]) => `
     <div class="hbar-row"><span class="hbl">${w}</span><div class="hbar-track"><div class="hbar-fill" style="width:${(v / maxW) * 100}%;background:var(--navy-700)"></div></div><span class="hbv">${v}</span></div>`).join('');
 
-  const queue = a.priority_queue || [];
+  const queue = [
+    'Basement B2 utility buffer breach — Bldg 01', 'Apartment 402 fire-escape overlap', 'Shop 3 duplicate 3D ULPIN', 'Unit 301 balcony extending outside parcel',
+  ];
   $('#priorityQueue').innerHTML = queue.map((q, i) => `<div class="priority-item"><div class="num" style="background:var(--error-bg);color:var(--error)">${i + 1}</div><div class="txt">${q}</div></div>`).join('');
 
-  const tax = (a.tax_realization || []).map(t => [t.period, t.demand, t.realized]);
+  const tax = [ ['Q1', 74, 62], ['Q2', 78, 69], ['Q3', 81, 75], ['Q4', 86, 80] ];
   $('#taxChart').innerHTML = tax.map(([label, demand, realized]) => `
     <div class="hbar-row"><span class="hbl">${label} realized / demand</span><div class="hbar-track"><div class="hbar-fill" style="width:${(realized / demand) * 100}%;background:var(--teal-700)"></div></div><span class="hbv">${realized}%</span></div>`).join('') +
     `<div style="font-size:11px;color:var(--text-secondary);margin-top:6px">Tax realization is tied to verified 3D volumes — unresolved conflicts delay demand notices.</div>`;
 
-  const litigation = (a.litigation || []).map(l => ({ t: l.title, s: l.status }));
+  const litigation = [
+    { t: 'Apartment 402 fire-escape dispute', s: 'Under mediation' },
+    { t: 'Unit 301 balcony boundary claim', s: 'Filed — awaiting hearing' },
+    { t: 'Basement B2 easement objection', s: 'Under mediation' },
+  ];
   $('#litigationList').innerHTML = litigation.map(l => `
     <div class="detail-row"><span class="k" style="max-width:170px">${l.t}</span><span class="v badge badge-warning" style="display:inline-flex">${l.s}</span></div>`).join('') +
-    `<div style="font-size:11px;color:var(--text-secondary);margin-top:10px">${litigation.length} open case${litigation.length === 1 ? '' : 's'} across MP Nagar — linked directly to Conflict Radar records.</div>`;
+    `<div style="font-size:11px;color:var(--text-secondary);margin-top:10px">3 open cases across MP Nagar — linked directly to Conflict Radar records.</div>`;
 
-  const dilrmp = (a.dilrmp || []).map(d => [d.label, d.pct]);
+  const dilrmp = [ ['Parcel digitization sync', 94], ['Record integration (State DLR)', 81], ['Mutation sync', 67] ];
   $('#dilrmpStatus').innerHTML = dilrmp.map(([label, pct]) => `
     <div class="confidence-bar-row"><span class="clabel" style="width:150px">${label}</span><div class="progress-track" style="flex:1"><div class="progress-fill" style="width:${pct}%;background:${pct > 85 ? 'var(--success)' : pct > 60 ? 'var(--info)' : 'var(--warning)'}"></div></div><span class="cval">${pct}%</span></div>`).join('') +
     `<div style="font-size:11px;color:var(--text-secondary);margin-top:6px">Tracks alignment with the Digital India Land Records Modernisation Programme.</div>`;
@@ -2306,9 +2273,20 @@ function renderAnalytics() {
 
 /* ---------------------------------------------------------------- SETTINGS EXTRAS */
 
-var LADM_MAPPING = []; /* hydrated by api.js */
+const LADM_MAPPING = [
+  { local: 'Parent parcel (ULPIN)', ladm: 'LA_SpatialUnit' },
+  { local: 'Building / Building 01', ladm: 'LA_BuildingUnit' },
+  { local: 'Apartment / floor / basement volume', ladm: 'LA_LegalSpaceBuildingUnit' },
+  { local: 'Owner (masked or verified)', ladm: 'LA_Party' },
+  { local: 'Ownership, lease, easement record', ladm: 'LA_RRR (Right / Restriction / Responsibility)' },
+  { local: 'Survey source (LiDAR, GNSS, plan)', ladm: 'LA_SpatialSource' },
+];
 
-var LEGACY_MAPPING = []; /* hydrated by api.js */
+const LEGACY_MAPPING = [
+  { khasra: '245/2, Ward 12', parent: '1450A9B7C23456', volumes: '9 volumes migrated', status: 'Migrated' },
+  { khasra: '246/1, Ward 12', parent: '1450A9C2D18821', volumes: '4 volumes migrated', status: 'Migrated' },
+  { khasra: '251/3A, Ward 12', parent: '1450A9E4F30456', volumes: 'Pending digitisation', status: 'In progress' },
+];
 
 function renderSettingsExtras() {
   $('#ladmMapping').innerHTML = LADM_MAPPING.map(m => `
@@ -2348,8 +2326,7 @@ function renderReports() {
 
 /* ---------------------------------------------------------------- INIT */
 
-/* Called by api.js once the user is authenticated and the dataset is hydrated. */
-function startApp() {
+document.addEventListener('DOMContentLoaded', () => {
   initShell();
   initRouting();
   renderOverview();
@@ -2370,43 +2347,6 @@ function startApp() {
   renderSettingsExtras();
 
   $('#globalSearch').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') { goToView('search'); runSearch(e.target.value); }
+    if (e.key === 'Enter') { goToView('search'); toast('Searching for “' + e.target.value + '”'); }
   });
-  const searchInput = $('#searchInput');
-  if (searchInput) searchInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') runSearch(e.target.value);
-  });
-  $all('.filter-row select', $('#view-search')).forEach(sel => sel.addEventListener('change', () => {
-    runSearch($('#searchInput').value);
-  }));
-}
-
-/* Server-side search — replaces the filtering the prototype did in memory. */
-async function runSearch(query) {
-  const selects = $all('.filter-row select', $('#view-search'));
-  const pick = (i) => {
-    const el = selects[i];
-    if (!el || el.selectedIndex === 0) return undefined;
-    return el.options[el.selectedIndex].text;
-  };
-  const conflictChoice = pick(2);
-  const yearChoice = pick(3);
-  try {
-    const body = await API.search({
-      q: query || undefined,
-      property_type: pick(0),
-      verification_status: pick(1),
-      conflict: conflictChoice === undefined ? undefined : conflictChoice !== 'No conflict',
-      survey_year: yearChoice ? Number(yearChoice) : undefined,
-      page_size: 50,
-    });
-    SEARCH_RESULTS = body.items.map(r => ({
-      addr: r.addr, parent: r.parent, buildingId: r.buildingId, id3d: r.id3d,
-      fullId3d: r.full_id3d, status: r.status, conf: r.conf, conflict: r.conflict, date: r.date,
-    }));
-    renderSearchResults();
-    toast(body.total + ' record' + (body.total === 1 ? '' : 's') + ' found');
-  } catch (err) {
-    toast('Search failed: ' + err.message, ICONS.alert);
-  }
-}
+});
